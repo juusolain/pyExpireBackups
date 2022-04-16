@@ -120,8 +120,7 @@ class BackupFile():
         '''
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         age=now - self.modified
-        print(age.days)
-        return age.days
+        return age.total_seconds / (60*60*24)
     
     def getIsoDateOfModification(self):
         '''
