@@ -13,3 +13,4 @@ Backup expiration based on rules (yearly,monthly,weekly,daily ...)
 
 ### Authors
 * [Wolfgang Fahl](http://www.bitplan.com/Wolfgang_Fahl)
+* [Juuso Laine](https://github.com/juusolain)

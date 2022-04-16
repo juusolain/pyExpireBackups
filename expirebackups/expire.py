@@ -21,6 +21,7 @@ __date__ = Version.date
 __updated__ = Version.updated
 DEBUG = 0
 
+defaultHours=24
 defaultDays=7
 defaultWeeks=6
 defaultMonths=8
@@ -198,11 +199,12 @@ class Expiration():
     '''
     Expiration pattern
     '''
-    def __init__(self,days:int=defaultDays,weeks:int=defaultWeeks,months:int=defaultMonths,years:int=defaultYears,minFileSize:int=defaultMinFileSize,debug:bool=False):
+    def __init__(self,hours:int=defaultHours,days:int=defaultDays,weeks:int=defaultWeeks,months:int=defaultMonths,years:int=defaultYears,minFileSize:int=defaultMinFileSize,debug:bool=False):
         '''
         constructor
         
         Args:
+
             days(float): how many files to keep for the daily backup
             weeks(float): how many files to keep for the weekly backup
             months(float): how many files to keep for the monthly backup
@@ -210,6 +212,7 @@ class Expiration():
             debug(bool): if true show debug information (rule application)
         '''
         self.rules={
+            "hourly":ExpirationRule("hours",1.0/24,hours),
             "dayly":ExpirationRule("days",1.0,days),
             "weekly":ExpirationRule("weeks",7.0,weeks),
             # the month is in fact 4 weeks
@@ -316,7 +319,7 @@ class ExpireBackups(object):
         return testFile.name
     
     @classmethod
-    def createTestFiles(cls,numberOfTestfiles:int,baseName:str="expireBackupTest",ext:str=".tst"):
+    def createTestFiles(cls,numberOfTestfiles:int,baseName:str="expireBackupTest",ext:str=".tst",step:float=1):
         '''
         create the given number of tests files
         
@@ -324,13 +327,14 @@ class ExpireBackups(object):
             numberOfTestfiles(int): the number of files to create
             baseName(str): the prefix of the files (default: '')
             ext(str): the extension of the files (default: '.tst')
+            step(float): days between test files
             
         Returns:
             tuple(str,list): the path of the directory where the test files have been created
             and a list of BackupFile files
         '''
         backupFiles=[]
-        for ageInDays in range(1,numberOfTestfiles+1):
+        for ageInDays in range(1,numberOfTestfiles+1,step):
             testFile=ExpireBackups.createTestFile(ageInDays,baseName=baseName,ext=ext)
             backupFiles.append(BackupFile(testFile))
         path=pathlib.Path(testFile).parent.resolve()
@@ -418,6 +422,7 @@ USAGE
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
         
         # expiration schedule selection
+        parser.add_argument("--hours",type=int,default=defaultHours,help = "number of consecutive hours to keep a hourly backup (default: %(default)s)")
         parser.add_argument("--days",type=int,default=defaultDays,help = "number of consecutive days to keep a daily backup (default: %(default)s)")
         parser.add_argument("--weeks",type=int,default=defaultWeeks,help = "number of consecutive weeks to keep a weekly backup (default: %(default)s)")
         parser.add_argument("--months",type=int,default=defaultMonths,help = "number of consecutive month to keep a monthly backup (default: %(default)s)")
@@ -445,7 +450,7 @@ USAGE
             dryRun=True
             if args.force:
                 dryRun=False    
-            expiration=Expiration(days=args.days,months=args.months,weeks=args.weeks,years=args.years,minFileSize=args.minFileSize,debug=args.debug)
+            expiration=Expiration(hours=args.hours,days=args.days,months=args.months,weeks=args.weeks,years=args.years,minFileSize=args.minFileSize,debug=args.debug)
             eb=ExpireBackups(rootPath=args.rootPath,baseName=args.baseName,ext=args.ext,expiration=expiration,dryRun=dryRun,debug=args.debug)
             eb.doexpire(args.force)
         
