@@ -28,6 +28,8 @@ defaultMonths=8
 defaultYears=4
 defaultMinFileSize=1
 
+error_margin = 5 / (60*60*24) # 5 seconds
+
 class BackupFile():
     '''
     a Backup file which is potentially to be expired
@@ -181,9 +183,10 @@ class ExpirationRule():
             prevFile(BackupFile): the previous file to potentially take into account
             debug(bool): if True show debug output
         '''
+
         if prevFile is not None:
             ageDiff=file.ageInDays - prevFile.ageInDays
-            keep=ageDiff>=self.freq
+            keep=ageDiff>=(self.freq - error_margin)
         else:
             ageDiff=file.ageInDays - self.startAge
             keep=True
