@@ -295,12 +295,12 @@ class ExpireBackups(object):
         self.debug=debug
         
     @classmethod    
-    def createTestFile(cls,ageInDays:float,baseName:str=None,ext:str=".tst"):
+    def createTestFile(cls,ageInHours:float,baseName:str=None,ext:str=".tst"):
         '''
-        create a test File with the given extension and the given age in Days
+        create a test File with the given extension and the given age in Hours
         
         Args:
-            ageInDays(float): the age of the file in days
+            ageInHours(float): the age of the file in hours
             baseName(str): the prefix of the files (default: None)
             ext(str): the extension to be used - default ".tst"
             
@@ -308,18 +308,18 @@ class ExpireBackups(object):
             str: the full path name of the testfile
         '''
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        dayDelta = datetime.timedelta(days = ageInDays)
+        dayDelta = datetime.timedelta(hours = ageInHours)
         wantedTime=now-dayDelta
         timestamp=datetime.datetime.timestamp(wantedTime)
         prefix="" if baseName is None else f"{baseName}-"
-        testFile=NamedTemporaryFile(prefix=f"{prefix}{ageInDays}daysOld-",suffix=ext,delete=False)
+        testFile=NamedTemporaryFile(prefix=f"{prefix}{ageInHours}hoursOld-",suffix=ext,delete=False)
         with open(testFile.name, 'a'):
             times=(timestamp,timestamp) # access time and modification time
             os.utime(testFile.name, times)
         return testFile.name
     
     @classmethod
-    def createTestFiles(cls,numberOfTestfiles:int,baseName:str="expireBackupTest",ext:str=".tst",step:float=1):
+    def createTestFiles(cls,numberOfTestfiles:int,baseName:str="expireBackupTest",ext:str=".tst",step:int=24):
         '''
         create the given number of tests files
         
@@ -327,15 +327,15 @@ class ExpireBackups(object):
             numberOfTestfiles(int): the number of files to create
             baseName(str): the prefix of the files (default: '')
             ext(str): the extension of the files (default: '.tst')
-            step(float): days between test files
+            step(int): hours between test files
             
         Returns:
             tuple(str,list): the path of the directory where the test files have been created
             and a list of BackupFile files
         '''
         backupFiles=[]
-        for ageInDays in range(1,numberOfTestfiles+1,step):
-            testFile=ExpireBackups.createTestFile(ageInDays,baseName=baseName,ext=ext)
+        for ageInHours in range(1,numberOfTestfiles+1,step):
+            testFile=ExpireBackups.createTestFile(ageInHours,baseName=baseName,ext=ext)
             backupFiles.append(BackupFile(testFile))
         path=pathlib.Path(testFile).parent.resolve()
         return path,backupFiles
@@ -435,7 +435,7 @@ USAGE
         parser.add_argument("--ext",default=None,help="the extension to filter for (default: %(default)s)")
         
         parser.add_argument("--createTestFiles",type=int,default=None,help="create the given number of temporary test files (default: %(default)s)")
-        parser.add_argument("--testFileInterval",type=float,default=None,help="time interval in days between test files (default: %(default)s)")
+        parser.add_argument("--testFileInterval",type=int,default=None,help="time interval in hours between test files (default: %(default)s)")
         
         parser.add_argument("-f","--force",action="store_true")
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
