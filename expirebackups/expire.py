@@ -435,13 +435,14 @@ USAGE
         parser.add_argument("--ext",default=None,help="the extension to filter for (default: %(default)s)")
         
         parser.add_argument("--createTestFiles",type=int,default=None,help="create the given number of temporary test files (default: %(default)s)")
+        parser.add_argument("--testFileInterval",type=float,default=None,help="time interval in days between test files (default: %(default)s)")
         
         parser.add_argument("-f","--force",action="store_true")
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
         
         args = parser.parse_args(argv[1:])
         if args.createTestFiles:
-            path,_backupFiles=ExpireBackups.createTestFiles(args.createTestFiles)
+            path,_backupFiles=ExpireBackups.createTestFiles(args.createTestFiles, step=args.testFileInterval)
             print(f"created {args.createTestFiles} test files with extension '.tst' in {path}")
             print(f"Please try out \nexpireBackups --rootPath {path} --baseName expireBackup --ext .tst --minFileSize 0")
             print("then try appending the -f option to the command that will actually delete files (which are in a temporary directory")
