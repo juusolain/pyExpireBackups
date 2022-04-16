@@ -21,7 +21,7 @@ __date__ = Version.date
 __updated__ = Version.updated
 DEBUG = 0
 
-defaultQuarters=0
+defaultCustoms=0
 defaultHours=24
 defaultDays=7
 defaultWeeks=6
@@ -203,7 +203,7 @@ class Expiration():
     '''
     Expiration pattern
     '''
-    def __init__(self,quarters:int=defaultQuarters,hours:int=defaultHours,days:int=defaultDays,weeks:int=defaultWeeks,months:int=defaultMonths,years:int=defaultYears,minFileSize:int=defaultMinFileSize,debug:bool=False):
+    def __init__(self,customs:int=defaultCustoms,customFreq:int=1,hours:int=defaultHours,days:int=defaultDays,weeks:int=defaultWeeks,months:int=defaultMonths,years:int=defaultYears,minFileSize:int=defaultMinFileSize,debug:bool=False):
         '''
         constructor
         
@@ -216,7 +216,7 @@ class Expiration():
             debug(bool): if true show debug information (rule application)
         '''
         self.rules={
-            "quarterly":ExpirationRule("quarters",1/(4*24),quarters),
+            "quarterly":ExpirationRule("customs",customFreq/(24*60),customs),
             "hourly":ExpirationRule("hours",1/24,hours),
             "dayly":ExpirationRule("days",1.0,days),
             "weekly":ExpirationRule("weeks",7.0,weeks),
@@ -427,12 +427,14 @@ USAGE
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
         
         # expiration schedule selection
-        parser.add_argument("--quarters",type=int,default=defaultQuarters,help = "number of consecutive quarter hours to keep a backup (default: %(default)s)")
+        parser.add_argument("--customs",type=int,default=defaultCustoms,help = "number of custom durations to keep a backup (default: %(default)s)")
         parser.add_argument("--hours",type=int,default=defaultHours,help = "number of consecutive hours to keep a hourly backup (default: %(default)s)")
         parser.add_argument("--days",type=int,default=defaultDays,help = "number of consecutive days to keep a daily backup (default: %(default)s)")
         parser.add_argument("--weeks",type=int,default=defaultWeeks,help = "number of consecutive weeks to keep a weekly backup (default: %(default)s)")
         parser.add_argument("--months",type=int,default=defaultMonths,help = "number of consecutive month to keep a monthly backup (default: %(default)s)")
         parser.add_argument("--years",type=int,default=defaultYears,help = "number of consecutive years to keep a yearly backup (default: %(default)s)") 
+
+        parser.add_argument("--customFreq", type=float,default=1,help="frequency between custom backups in minutes (default: %(default)s)")
 
         # file filter selection arguments
         parser.add_argument("--minFileSize",type=int,default=defaultMinFileSize,help="minimum File size in bytes to filter for (default: %(default)s)")
@@ -457,7 +459,7 @@ USAGE
             dryRun=True
             if args.force:
                 dryRun=False    
-            expiration=Expiration(quarters=args.quarters,hours=args.hours,days=args.days,months=args.months,weeks=args.weeks,years=args.years,minFileSize=args.minFileSize,debug=args.debug)
+            expiration=Expiration(customs=args.customs,customFreq=args.customFreq,hours=args.hours,days=args.days,months=args.months,weeks=args.weeks,years=args.years,minFileSize=args.minFileSize,debug=args.debug)
             eb=ExpireBackups(rootPath=args.rootPath,baseName=args.baseName,ext=args.ext,expiration=expiration,dryRun=dryRun,debug=args.debug)
             eb.doexpire(args.force)
         
