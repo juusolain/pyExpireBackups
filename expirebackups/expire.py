@@ -216,7 +216,7 @@ class Expiration():
             debug(bool): if true show debug information (rule application)
         '''
         self.rules={
-            "quarterly":ExpirationRule("customs",customFreq/(24*60),customs),
+            "customly":ExpirationRule("customs",customFreq/(24*60),customs),
             "hourly":ExpirationRule("hours",1/24,hours),
             "dayly":ExpirationRule("days",1.0,days),
             "weekly":ExpirationRule("weeks",7.0,weeks),
