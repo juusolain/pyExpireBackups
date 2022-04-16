@@ -212,7 +212,7 @@ class Expiration():
             debug(bool): if true show debug information (rule application)
         '''
         self.rules={
-            "hourly":ExpirationRule("hours",1.0/24,hours),
+            "hourly":ExpirationRule("hours",1/24,hours),
             "dayly":ExpirationRule("days",1.0,days),
             "weekly":ExpirationRule("weeks",7.0,weeks),
             # the month is in fact 4 weeks
@@ -308,8 +308,8 @@ class ExpireBackups(object):
             str: the full path name of the testfile
         '''
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        dayDelta = datetime.timedelta(hours = ageInHours)
-        wantedTime=now-dayDelta
+        td = datetime.timedelta(hours = ageInHours)
+        wantedTime=now-td
         timestamp=datetime.datetime.timestamp(wantedTime)
         prefix="" if baseName is None else f"{baseName}-"
         testFile=NamedTemporaryFile(prefix=f"{prefix}{ageInHours}hoursOld-",suffix=ext,delete=False)
